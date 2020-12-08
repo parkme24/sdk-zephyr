@@ -190,7 +190,7 @@ void mqtt_client_init(struct mqtt_client *client)
 	mqtt_mutex_init(client);
 
 	client->protocol_version = MQTT_VERSION_3_1_1;
-	client->clean_session = 1U;
+	client->clean_session = 0U;
 	client->keepalive = MQTT_KEEPALIVE;
 }
 
