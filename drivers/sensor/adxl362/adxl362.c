@@ -644,7 +644,7 @@ static int adxl362_chip_init(struct device *dev)
 	adxl362_setup_activity_detection(dev,
 					 CONFIG_ADXL362_ABS_REF_MODE,
 					 CONFIG_ADXL362_ACTIVITY_THRESHOLD,
-					 1);
+					 CONFIG_ADXL362_ACTIVITY_TIME);
 	if (ret) {
 		return ret;
 	}
@@ -666,7 +666,7 @@ static int adxl362_chip_init(struct device *dev)
 	adxl362_setup_inactivity_detection(dev,
 					   CONFIG_ADXL362_ABS_REF_MODE,
 					   CONFIG_ADXL362_INACTIVITY_THRESHOLD,
-					   1);
+					   CONFIG_ADXL362_INACTIVITY_TIME);
 	if (ret) {
 		return ret;
 	}
