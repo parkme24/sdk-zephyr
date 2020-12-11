@@ -794,6 +794,9 @@ static int adxl362_init(struct device *dev)
 	}
 #endif
     printk("+++++++++++++++++++++++++++++++++++++++++++++=================> Initialization values:\n");
+    printk("===0x22===\n");
+    adxl362_get_reg(dev, &value, 0x22, 1);
+    printk("ACT_TIME: %d\n", value);
     printk("===0x27===\n");
     adxl362_get_reg(dev, &value, 0x27, 1);
     printk("ACT_EN: %d\n", BIT0(value));
