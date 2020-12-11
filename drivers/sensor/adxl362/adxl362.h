@@ -12,6 +12,16 @@
 #include <drivers/gpio.h>
 #include <drivers/spi.h>
 
+
+#define BIT7(x)		(((x) >> 7) & 0x1)
+#define BIT6(x)		(((x) >> 6) & 0x1)
+#define BIT5(x)		(((x) >> 5) & 0x1)
+#define BIT4(x)		(((x) >> 4) & 0x1)
+#define BIT3(x)		(((x) >> 3) & 0x1)
+#define BIT2(x)		(((x) >> 2) & 0x1)
+#define BIT1(x)		(((x) >> 1) & 0x1)
+#define BIT0(x)		(((x) >> 0) & 0x1)
+
 #define ADXL362_SLAVE_ID    1
 
 /* ADXL362 communication commands */

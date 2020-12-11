@@ -167,6 +167,9 @@ static int adxl362_set_power_mode(struct device *dev, u8_t mode)
 	new_power_ctl = new_power_ctl |
 		      (mode *
 		       ADXL362_POWER_CTL_MEASURE(ADXL362_MEASURE_ON));
+
+//	new_power_ctl = 50;
+
 	return adxl362_set_reg(dev, new_power_ctl, ADXL362_REG_POWER_CTL, 1);
 }
 
@@ -593,16 +596,21 @@ static int adxl362_channel_get(struct device *dev,
 			       struct sensor_value *val)
 {
 	struct adxl362_data *data = dev->driver_data;
+	u32_t timestamp;
+	timestamp = k_uptime_get_32();
 
 	switch (chan) {
 	case SENSOR_CHAN_ACCEL_X: /* Acceleration on the X axis, in m/s^2. */
 		adxl362_accel_convert(val, data->acc_x, data->selected_range);
+		printk("P24AN/%d:%d:",timestamp,data->acc_x);
 		break;
 	case SENSOR_CHAN_ACCEL_Y: /* Acceleration on the Y axis, in m/s^2. */
 		adxl362_accel_convert(val, data->acc_y, data->selected_range);
-		break;
+        printk("%d:", data->acc_y);
+        break;
 	case SENSOR_CHAN_ACCEL_Z: /* Acceleration on the Z axis, in m/s^2. */
 		adxl362_accel_convert(val, data->acc_z,  data->selected_range);
+        printk("%d\n", data->acc_z);
 		break;
 	case SENSOR_CHAN_DIE_TEMP: /* Temperature in degrees Celsius. */
 		adxl362_temp_convert(val, data->temp);
@@ -708,6 +716,9 @@ static int adxl362_chip_init(struct device *dev)
 		return ret;
 	}
 
+
+
+
 	return 0;
 }
 
@@ -782,6 +793,26 @@ static int adxl362_init(struct device *dev)
 		return -EIO;
 	}
 #endif
+    printk("+++++++++++++++++++++++++++++++++++++++++++++=================> Initialization values:\n");
+    printk("===0x27===\n");
+    adxl362_get_reg(dev, &value, 0x27, 1);
+    printk("ACT_EN: %d\n", BIT0(value));
+    printk("ACT_REF: %d\n", BIT1(value));
+    printk("INACT_EN: %d\n", BIT0(value));
+    printk("INACT_REF: %d\n", BIT1(value));
+    printk("LINK/LOOP: %d%d\n", BIT5(value), BIT4(value));
+    printk("===0x2C===\n");
+    adxl362_get_reg(dev, &value, 0x2C, 1);
+    printk("ODR: %d%d%d\n", BIT2(value), BIT1(value), BIT0(value));
+    printk("EXT_SAMPLE: %d\n", BIT3(value));
+    printk("HALF_BW: %d\n", BIT4(value));
+    printk("RANGE: %d%d\n", BIT7(value),BIT6(value));
+    printk("===0x2D===\n");
+    adxl362_get_reg(dev, &value, 0x2D, 1);
+    printk("MEASURE: %d%d\n", BIT1(value), BIT0(value));
+    printk("AUTOSLEEP: %d\n", BIT2(value));
+    printk("WAKEUP: %d\n",BIT3(value));
+    printk("LOW_NOISE: %d%d\n", BIT5(value), BIT4(value));
 
 	return 0;
 }
