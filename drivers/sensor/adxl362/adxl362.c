@@ -168,7 +168,9 @@ static int adxl362_set_power_mode(struct device *dev, u8_t mode)
 		      (mode *
 		       ADXL362_POWER_CTL_MEASURE(ADXL362_MEASURE_ON));
 
-//	new_power_ctl = 50;
+    new_power_ctl = 2; //Normal Noise
+    //new_power_ctl = 18; //Low Noise
+    //new_power_ctl = 34; //Ultralow Noise
 
 	return adxl362_set_reg(dev, new_power_ctl, ADXL362_REG_POWER_CTL, 1);
 }
