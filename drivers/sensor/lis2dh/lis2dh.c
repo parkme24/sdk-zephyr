@@ -18,7 +18,12 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 #define ACCEL_SCALE(sensitivity)			\
 	((SENSOR_G * (sensitivity) >> 14) / 100)
 
-
+//ACT(TH/DUR) -> REG_INT2 -> ACTIVITY -> INT1
+//SLOPE(TH/DUR) -> INACTIVITY -> INT2
+//
+//
+//	THRESHOLD -> HIGHM_SET -> INT1 -> ACTIVITY
+//	DELTA -> ANYM_SET -> INT2 -> INACTIVITY
 //#define MY_STACK_SIZE 500
 //#define MY_PRIORITY K_PRIO_COOP(10)
 //
@@ -253,7 +258,9 @@ static int lis2dh_acc_config(const struct device *dev,
 #if defined(CONFIG_LIS2DH_TRIGGER)
 	case SENSOR_ATTR_SLOPE_TH:
 	case SENSOR_ATTR_SLOPE_DUR:
-		return lis2dh_acc_slope_config(dev, attr, val, false);
+    case SENSOR_ATTR_ACT_TH:
+    case SENSOR_ATTR_ACT_DUR:
+		return lis2dh_acc_slope_config(dev, attr, val);
 #endif
 	default:
 		LOG_DBG("Accel attribute not supported.");
@@ -359,18 +366,6 @@ int lis2dh_init(const struct device *dev)
 		return status;
 	}
 #endif
-
-    struct sensor_value slope = { //Threshold in m/s^2
-            .val1 = 10,
-            .val2 = 0
-    };
-    lis2dh_acc_slope_config(dev, SENSOR_ATTR_SLOPE_TH, &slope, true);
-
-    struct sensor_value dur = {
-            .val1 = 600,
-            .val2 = 0
-    };
-    lis2dh_acc_slope_config(dev, SENSOR_ATTR_SLOPE_DUR, &dur, true);
 
 	LOG_INF("bus=%s fs=%d, odr=0x%x lp_en=0x%x scale=%d",
 		    cfg->bus_name, 1 << (LIS2DH_FS_IDX + 1),

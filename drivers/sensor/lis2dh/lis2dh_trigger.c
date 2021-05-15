@@ -231,61 +231,98 @@ int lis2dh_trigger_set(const struct device *dev,
 
 int lis2dh_acc_slope_config(const struct device *dev,
 			    enum sensor_attribute attr,
-			    const struct sensor_value *val,
-                bool power_saving)
+			    const struct sensor_value *val)
 {
 	struct lis2dh_data *lis2dh = dev->data;
 	int status;
     int dest_reg;
 
-	if (attr == SENSOR_ATTR_SLOPE_TH) {
-		uint8_t range_g, reg_val;
-		uint32_t slope_th_ums2;
+    uint8_t range_g, reg_val;
+    uint32_t slope_th_ums2;
 
-		status = lis2dh->hw_tf->read_reg(dev, LIS2DH_REG_CTRL4,
-						 &reg_val);
-		if (status < 0) {
-			return status;
-		}
+    switch (attr) {
+        case SENSOR_ATTR_SLOPE_TH:
+            status = lis2dh->hw_tf->read_reg(dev, LIS2DH_REG_CTRL4,
+                                             &reg_val);
+            if (status < 0) {
+                return status;
+            }
 
-		/* fs reg value is in the range 0 (2g) - 3 (16g) */
-		range_g = 2 * (1 << ((LIS2DH_FS_MASK & reg_val)
-				      >> LIS2DH_FS_SHIFT));
+            /* fs reg value is in the range 0 (2g) - 3 (16g) */
+            range_g = 2 * (1 << ((LIS2DH_FS_MASK & reg_val) >> LIS2DH_FS_SHIFT));
 
-		slope_th_ums2 = val->val1 * 1000000 + val->val2;
+            slope_th_ums2 = val->val1 * 1000000 + val->val2;
 
-		/* make sure the provided threshold does not exceed range */
-		if ((slope_th_ums2 - 1) > (range_g * SENSOR_G)) {
-			return -EINVAL;
-		}
+            /* make sure the provided threshold does not exceed range */
+            if ((slope_th_ums2 - 1) > (range_g * SENSOR_G)) {
+                return -EINVAL;
+            }
 
-		/* 7 bit full range value */
-		reg_val = 128 / range_g * (slope_th_ums2 - 1) / SENSOR_G;
+            /* 7 bit full range value */
+            reg_val = 128 / range_g * (slope_th_ums2 - 1) / SENSOR_G;
 
-		LOG_INF("power_saving=%d int2_ths=0x%x range_g=%d ums2=%u", power_saving, reg_val,
-			    range_g, slope_th_ums2 - 1);
+            LOG_INF("inact_int2_ths=0x%x range_g=%d ums2=%u", reg_val, range_g, slope_th_ums2 - 1);
 
-		dest_reg = power_saving ? LIS2DH_REG_ACT_THS : LIS2DH_REG_INT2_THS;
+//            dest_reg = power_saving ?  : LIS2DH_REG_INT2_THS;
 
-		status = lis2dh->hw_tf->write_reg(dev, dest_reg,
-						  reg_val);
-	} else { /* SENSOR_ATTR_SLOPE_DUR */
-		/*
+            status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_ACT_THS, reg_val);
+            break;
+        case SENSOR_ATTR_SLOPE_DUR:
+            /*
 		 * slope duration is measured in number of samples:
 		 * N/ODR where N is the register value
 		 */
-		if (val->val1 < 0 || val->val1 > 127) {
-			return -ENOTSUP;
-		}
+            if (val->val1 < 0 || val->val1 > 127) {
+                return -ENOTSUP;
+            }
 
-		LOG_INF("power_saving=%d int2_dur=0x%x", power_saving, val->val1);
+            LOG_INF("inact_int2_dur=0x%x", val->val1);
 
-		dest_reg = power_saving ? LIS2DH_REG_ACT_DUR : LIS2DH_REG_INT2_DUR;
+//            dest_reg = power_saving ? LIS2DH_REG_ACT_DUR : LIS2DH_REG_INT2_DUR;
 
-		status = lis2dh->hw_tf->write_reg(dev, dest_reg,
-						  val->val1);
-	}
+            status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_ACT_DUR, val->val1);
+            break;
+        case SENSOR_ATTR_ACT_TH:
+            status = lis2dh->hw_tf->read_reg(dev, LIS2DH_REG_CTRL4, &reg_val);
+            if (status < 0) {
+                return status;
+            }
 
+            /* fs reg value is in the range 0 (2g) - 3 (16g) */
+            range_g = 2 * (1 << ((LIS2DH_FS_MASK & reg_val) >> LIS2DH_FS_SHIFT));
+
+            slope_th_ums2 = val->val1 * 1000000 + val->val2;
+
+            /* make sure the provided threshold does not exceed range */
+            if ((slope_th_ums2 - 1) > (range_g * SENSOR_G)) {
+                return -EINVAL;
+            }
+
+            /* 7 bit full range value */
+            reg_val = 128 / range_g * (slope_th_ums2 - 1) / SENSOR_G;
+
+            LOG_INF("act_int1_ths=0x%x range_g=%d ums2=%u", reg_val, range_g, slope_th_ums2 - 1);
+
+            status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_INT2_THS, reg_val);
+            break;
+            break;
+        case SENSOR_ATTR_ACT_DUR:
+            /*
+		 * slope duration is measured in number of samples:
+		 * N/ODR where N is the register value
+		 */
+            if (val->val1 < 0 || val->val1 > 127) {
+                return -ENOTSUP;
+            }
+
+            LOG_INF("inact_int2_dur=0x%x", val->val1);
+
+
+            status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_INT2_DUR, val->val1);
+            break;
+        default:
+            LOG_ERR("Setting up non existent attribute: %d", attr);
+    }
 	return status;
 }
 

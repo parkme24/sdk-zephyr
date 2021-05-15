@@ -278,9 +278,13 @@ int lis2dh_init_interrupt(const struct device *dev);
 
 int lis2dh_acc_slope_config(const struct device *dev,
 			    enum sensor_attribute attr,
-			    const struct sensor_value *val,
-                bool power_saving);
+			    const struct sensor_value *val);
 #endif
+
+enum sensor_attribute_extended {
+    SENSOR_ATTR_ACT_TH = SENSOR_ATTR_PRIV_START + 1,
+    SENSOR_ATTR_ACT_DUR
+};
 
 int lis2dh_spi_init(const struct device *dev);
 int lis2dh_i2c_init(const struct device *dev);
