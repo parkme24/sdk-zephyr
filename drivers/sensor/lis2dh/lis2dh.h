@@ -118,6 +118,8 @@
 #define LIS2DH_REG_CTRL5		0x24
 #define LIS2DH_LIR_INT2_SHIFT		1
 #define LIS2DH_EN_LIR_INT2		BIT(LIS2DH_LIR_INT2_SHIFT)
+#define LIS2DH_LIR_INT1_SHIFT		3
+#define LIS2DH_EN_LIR_INT1		BIT(LIS2DH_LIR_INT1_SHIFT)
 
 #define LIS2DH_REG_CTRL6		0x25
 #define LIS2DH_EN_INT2_INT2_SHIFT	5
@@ -154,8 +156,10 @@
 #define LIS2DH_INT_CFG_XHIE_XUPE	BIT(1)
 #define LIS2DH_INT_CFG_XLIE_XDOWNE	BIT(0)
 
+#define LIS2DH_REG_INT1_SRC		0x30
 #define LIS2DH_REG_INT2_SRC		0x35
 
+#define LIS2DH_REG_INT1_THS		0x32
 #define LIS2DH_REG_INT2_THS		0x36
 
 #define LIS2DH_REG_INT2_DUR		0x37
@@ -177,6 +181,9 @@
 #define LIS2DH_INT1_GPIOS_FLAGS		DT_INST_GPIO_FLAGS(0, irq_gpios)
 #define LIS2DH_INT1_GPIO_DEV_NAME	DT_INST_GPIO_LABEL(0, irq_gpios)
 #endif
+
+#define LIS2DH_REG_ACT_THS  0x3e
+#define LIS2DH_REG_ACT_DUR  0x3f
 
 union lis2dh_sample {
 	uint8_t raw[LIS2DH_BUF_SZ];
@@ -271,7 +278,8 @@ int lis2dh_init_interrupt(const struct device *dev);
 
 int lis2dh_acc_slope_config(const struct device *dev,
 			    enum sensor_attribute attr,
-			    const struct sensor_value *val);
+			    const struct sensor_value *val,
+                bool power_saving);
 #endif
 
 int lis2dh_spi_init(const struct device *dev);

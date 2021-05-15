@@ -18,6 +18,28 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 #define ACCEL_SCALE(sensitivity)			\
 	((SENSOR_G * (sensitivity) >> 14) / 100)
 
+
+//#define MY_STACK_SIZE 500
+//#define MY_PRIORITY K_PRIO_COOP(10)
+//
+//static void reg_monitor(struct lis2dh_data *lis2dh) {
+//    while (1) {
+//        uint8_t value = 0;
+//        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL1, &value);
+//        printk("CTRL_REG1: %d\n", value);
+//	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL3, &value);
+//	    printk("CTRL_REG3: %d\n", value);
+//        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL5, &value);
+//        printk("CTRL_REG5: %d\n", value);
+//        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL6, &value);
+//        printk("CTRL_REG6: %d\n", value);
+//        k_sleep(K_MSEC(1000));
+//    }
+//}
+//
+//K_THREAD_STACK_DEFINE(my_stack_area, MY_STACK_SIZE);
+//struct k_thread my_thread_data;
+
 /*
  * Use values for low-power mode in DS "Mechanical (Sensor) characteristics",
  * multiplied by 100.
@@ -231,7 +253,7 @@ static int lis2dh_acc_config(const struct device *dev,
 #if defined(CONFIG_LIS2DH_TRIGGER)
 	case SENSOR_ATTR_SLOPE_TH:
 	case SENSOR_ATTR_SLOPE_DUR:
-		return lis2dh_acc_slope_config(dev, attr, val);
+		return lis2dh_acc_slope_config(dev, attr, val, false);
 #endif
 	default:
 		LOG_DBG("Accel attribute not supported.");
@@ -261,9 +283,9 @@ static int lis2dh_attr_set(const struct device *dev, enum sensor_channel chan,
 
 static const struct sensor_driver_api lis2dh_driver_api = {
 	.attr_set = lis2dh_attr_set,
-#if CONFIG_LIS2DH_TRIGGER
+//#if CONFIG_LIS2DH_TRIGGER
 	.trigger_set = lis2dh_trigger_set,
-#endif
+//#endif
 	.sample_fetch = lis2dh_sample_fetch,
 	.channel_get = lis2dh_channel_get,
 };
@@ -338,9 +360,28 @@ int lis2dh_init(const struct device *dev)
 	}
 #endif
 
+    struct sensor_value slope = { //Threshold in m/s^2
+            .val1 = 10,
+            .val2 = 0
+    };
+    lis2dh_acc_slope_config(dev, SENSOR_ATTR_SLOPE_TH, &slope, true);
+
+    struct sensor_value dur = {
+            .val1 = 600,
+            .val2 = 0
+    };
+    lis2dh_acc_slope_config(dev, SENSOR_ATTR_SLOPE_DUR, &dur, true);
+
 	LOG_INF("bus=%s fs=%d, odr=0x%x lp_en=0x%x scale=%d",
 		    cfg->bus_name, 1 << (LIS2DH_FS_IDX + 1),
 		    LIS2DH_ODR_IDX, (uint8_t)LIS2DH_LP_EN_BIT, lis2dh->scale);
+
+//    k_thread_create(&my_thread_data, my_stack_area,
+//                         K_THREAD_STACK_SIZEOF(my_stack_area),
+//                         (k_thread_entry_t) reg_monitor,
+//                         lis2dh, NULL, NULL,
+//                         MY_PRIORITY, 0, K_NO_WAIT);
+
 
 	/* enable accel measurements and set power mode and data rate */
 	return lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_CTRL1,
