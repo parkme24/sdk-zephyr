@@ -18,18 +18,16 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 #define ACCEL_SCALE(sensitivity)			\
 	((SENSOR_G * (sensitivity) >> 14) / 100)
 
-//ACT(TH/DUR) -> REG_INT2 -> ACTIVITY -> INT1
-//SLOPE(TH/DUR) -> INACTIVITY -> INT2
-//
-//
-//	THRESHOLD -> HIGHM_SET -> INT1 -> ACTIVITY
-//	DELTA -> ANYM_SET -> INT2 -> INACTIVITY
-//#define MY_STACK_SIZE 500
-//#define MY_PRIORITY K_PRIO_COOP(10)
-//
-//static void reg_monitor(struct lis2dh_data *lis2dh) {
-//    while (1) {
-//        uint8_t value = 0;
+
+#define MONITOR_REGS true
+
+#ifdef MONITOR_REGS
+#define MY_STACK_SIZE 500
+#define MY_PRIORITY K_PRIO_COOP(10)
+
+static void reg_monitor(struct lis2dh_data *lis2dh) {
+    while (1) {
+        uint8_t value = 0;
 //        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL1, &value);
 //        printk("CTRL_REG1: %d\n", value);
 //	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL3, &value);
@@ -38,12 +36,22 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 //        printk("CTRL_REG5: %d\n", value);
 //        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL6, &value);
 //        printk("CTRL_REG6: %d\n", value);
-//        k_sleep(K_MSEC(1000));
-//    }
-//}
-//
-//K_THREAD_STACK_DEFINE(my_stack_area, MY_STACK_SIZE);
-//struct k_thread my_thread_data;
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_INT2_THS, &value);
+        printk("INT2_THS: %d\n", value);
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_INT2_DUR, &value);
+        printk("INT2_DUR: %d\n", value);
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_ACT_THS, &value);
+        printk("ACT_THS: %d\n", value);
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_ACT_DUR, &value);
+        printk("ACT_DUR: %d\n", value);
+        printk("------\n");
+        k_sleep(K_MSEC(5000));
+    }
+}
+
+K_THREAD_STACK_DEFINE(my_stack_area, MY_STACK_SIZE);
+struct k_thread my_thread_data;
+#endif
 
 /*
  * Use values for low-power mode in DS "Mechanical (Sensor) characteristics",
@@ -367,15 +375,20 @@ int lis2dh_init(const struct device *dev)
 	}
 #endif
 
+	//Enable HP
+//	status = lis2dh->hw_tf->write_data(dev, LIS2DH_REG_CTRL2, )
+
 	LOG_INF("bus=%s fs=%d, odr=0x%x lp_en=0x%x scale=%d",
 		    cfg->bus_name, 1 << (LIS2DH_FS_IDX + 1),
 		    LIS2DH_ODR_IDX, (uint8_t)LIS2DH_LP_EN_BIT, lis2dh->scale);
 
-//    k_thread_create(&my_thread_data, my_stack_area,
-//                         K_THREAD_STACK_SIZEOF(my_stack_area),
-//                         (k_thread_entry_t) reg_monitor,
-//                         lis2dh, NULL, NULL,
-//                         MY_PRIORITY, 0, K_NO_WAIT);
+#ifdef MONITOR_REGS
+    k_thread_create(&my_thread_data, my_stack_area,
+                         K_THREAD_STACK_SIZEOF(my_stack_area),
+                         (k_thread_entry_t) reg_monitor,
+                         lis2dh, NULL, NULL,
+                         MY_PRIORITY, 0, K_NO_WAIT);
+#endif
 
 
 	/* enable accel measurements and set power mode and data rate */

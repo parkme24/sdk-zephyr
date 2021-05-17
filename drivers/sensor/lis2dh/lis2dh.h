@@ -184,6 +184,9 @@
 
 #define LIS2DH_REG_ACT_THS  0x3e
 #define LIS2DH_REG_ACT_DUR  0x3f
+#define LIS2DH_REG_INT2_THS 0x36
+#define LIS2DH_REG_INT_DUR 0x37
+
 
 union lis2dh_sample {
 	uint8_t raw[LIS2DH_BUF_SZ];

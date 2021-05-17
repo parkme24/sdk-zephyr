@@ -369,29 +369,29 @@ static void lis2dh_thread_cb(const struct device *dev)
 
 	if (unlikely(atomic_test_and_clear_bit(&lis2dh->trig_flags,
 		     START_TRIG_INT1))) {
-		printk("INT1!!!!!!!!!!!!!!!!!!!!!!\n");
+//		printk("INT1!!!!!!!!!!!!!!!!!!!!!!\n");
 		status = lis2dh_start_trigger_int1(dev);
 
 		if (unlikely(status < 0)) {
 			LOG_ERR("lis2dh_start_trigger_int1: %d", status);
 		}
 		return;
-	} else {
-		printk("NOOOOO INT1!!!!!!\n");
+//	} else {
+//		printk("NOOOOO INT1!!!!!!\n");
 	}
 
 //#if DT_INST_PROP_HAS_IDX(0, irq_gpios, 1)
 	if (unlikely(atomic_test_and_clear_bit(&lis2dh->trig_flags,
 		     START_TRIG_INT2))) {
-		printk("INT2!!!!!!!!!!!!!!!!!!!!!!\n");
+//		printk("INT2!!!!!!!!!!!!!!!!!!!!!!\n");
 		status = lis2dh_start_trigger_int2(dev);
 
 		if (unlikely(status < 0)) {
 			LOG_ERR("lis2dh_start_trigger_int2: %d", status);
 		}
 		return;
-    } else {
-		printk("NOOOOO INT2!!!!!!\n");
+//    } else {
+//		printk("NOOOOO INT2!!!!!!\n");
 	}
 //#endif /* DT_INST_PROP_HAS_IDX(0, irq_gpios, 1) */
 
