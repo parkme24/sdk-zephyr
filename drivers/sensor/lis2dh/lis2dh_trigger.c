@@ -257,7 +257,7 @@ int lis2dh_acc_slope_config(const struct device *dev,
             if ((slope_th_ums2 - 1) > (range_g * SENSOR_G)) {
                 return -EINVAL;
             }
-
+            printk("INACTIVITY TH: %d\n",slope_th_ums2);
             /* 7 bit full range value */
             reg_val = 128 / range_g * (slope_th_ums2 - 1) / SENSOR_G;
 
@@ -297,7 +297,7 @@ int lis2dh_acc_slope_config(const struct device *dev,
             if ((slope_th_ums2 - 1) > (range_g * SENSOR_G)) {
                 return -EINVAL;
             }
-
+            printk("ACTIVITY TH: %d\n",slope_th_ums2);
             /* 7 bit full range value */
             reg_val = 128 / range_g * (slope_th_ums2 - 1) / SENSOR_G;
 

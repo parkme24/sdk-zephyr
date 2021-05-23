@@ -30,6 +30,8 @@ static void reg_monitor(struct lis2dh_data *lis2dh) {
         uint8_t value = 0;
 //        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL1, &value);
 //        printk("CTRL_REG1: %d\n", value);
+	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL2, &value);
+	    printk("CTRL_REG2: %d\n", value);
 //	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL3, &value);
 //	    printk("CTRL_REG3: %d\n", value);
 //        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL5, &value);
@@ -376,7 +378,7 @@ int lis2dh_init(const struct device *dev)
 #endif
 
 	//Enable HP
-//	status = lis2dh->hw_tf->write_data(dev, LIS2DH_REG_CTRL2, )
+	status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_CTRL2, 192);
 
 	LOG_INF("bus=%s fs=%d, odr=0x%x lp_en=0x%x scale=%d",
 		    cfg->bus_name, 1 << (LIS2DH_FS_IDX + 1),
