@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 	((SENSOR_G * (sensitivity) >> 14) / 100)
 
 
-#define MONITOR_REGS true
+//#define MONITOR_REGS true
 
 #ifdef MONITOR_REGS
 #define MY_STACK_SIZE 500
@@ -378,7 +378,7 @@ int lis2dh_init(const struct device *dev)
 #endif
 
 	//Enable HP
-	status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_CTRL2, 192);
+	status = lis2dh->hw_tf->write_reg(dev, LIS2DH_REG_CTRL2, 129);
 
 	LOG_INF("bus=%s fs=%d, odr=0x%x lp_en=0x%x scale=%d",
 		    cfg->bus_name, 1 << (LIS2DH_FS_IDX + 1),

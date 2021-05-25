@@ -453,7 +453,7 @@ static void lis2dh_thread_cb(const struct device *dev)
 
 		uint8_t ctr6_val;
 
-		printk("Reverse polarity\n");
+//		printk("Reverse polarity\n");
 		lis2dh->hw_tf->read_reg(dev, LIS2DH_REG_CTRL6, &ctr6_val);
 		lis2dh->hw_tf->update_reg(dev, LIS2DH_REG_CTRL6, 2, ~ctr6_val);
 
