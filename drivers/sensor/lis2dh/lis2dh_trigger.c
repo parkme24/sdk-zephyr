@@ -384,6 +384,10 @@ static void lis2dh_thread_cb(const struct device *dev)
 	if (unlikely(atomic_test_and_clear_bit(&lis2dh->trig_flags,
 		     START_TRIG_INT2))) {
 //		printk("INT2!!!!!!!!!!!!!!!!!!!!!!\n");
+
+        //init inverse polarity
+        lis2dh->hw_tf->update_reg(dev, LIS2DH_REG_CTRL6, 2, 2);
+
 		status = lis2dh_start_trigger_int2(dev);
 
 		if (unlikely(status < 0)) {
@@ -446,6 +450,13 @@ static void lis2dh_thread_cb(const struct device *dev)
 			LOG_ERR("clearing interrupt 2 failed: %d", status);
 			return;
 		}
+
+		uint8_t ctr6_val;
+
+		printk("Reverse polarity\n");
+		lis2dh->hw_tf->read_reg(dev, LIS2DH_REG_CTRL6, &ctr6_val);
+		lis2dh->hw_tf->update_reg(dev, LIS2DH_REG_CTRL6, 2, ~ctr6_val);
+
 
 		if (likely(lis2dh->handler_anymotion != NULL)) {
 			lis2dh->handler_anymotion(dev, &anym_trigger);

@@ -36,8 +36,8 @@ static void reg_monitor(struct lis2dh_data *lis2dh) {
 //	    printk("CTRL_REG3: %d\n", value);
 //        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL5, &value);
 //        printk("CTRL_REG5: %d\n", value);
-//        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL6, &value);
-//        printk("CTRL_REG6: %d\n", value);
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL6, &value);
+        printk("CTRL_REG6: %d\n", value);
         lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_INT2_THS, &value);
         printk("INT2_THS: %d\n", value);
         lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_INT2_DUR, &value);
