@@ -28,8 +28,8 @@ LOG_MODULE_REGISTER(lis2dh, CONFIG_SENSOR_LOG_LEVEL);
 static void reg_monitor(struct lis2dh_data *lis2dh) {
     while (1) {
         uint8_t value = 0;
-//        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL1, &value);
-//        printk("CTRL_REG1: %d\n", value);
+        lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL1, &value);
+        printk("CTRL_REG1: %d\n", value);
 	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL2, &value);
 	    printk("CTRL_REG2: %d\n", value);
 //	    lis2dh->hw_tf->read_reg(lis2dh->dev, LIS2DH_REG_CTRL3, &value);
